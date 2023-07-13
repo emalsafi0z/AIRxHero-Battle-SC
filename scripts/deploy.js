@@ -5,33 +5,23 @@
 // will compile your contracts, add the Hardhat Runtime Environment's members to the
 // global scope, and execute the script.
 const { verify } = require("../utils/verify");
+const hre = require("hardhat");
 
 async function main() {
-  const { deploy } = deployments;
-  const { deployer } = await getNamedAccounts();
-  const argumentsAIRx = []; 
-  const AirxHero = await deploy("AirxHero", {
-      from: deployer,
-      args: argumentsAIRx,
-      log: true,
-      waitConfirmations: 1,
-  });
+  const deploy = hre.ethers.deployContract;
 
-  await AirxHero.waitForDeployment();
+  const argumentsAIRx = [];
+  const AirxHero = await deploy("AirxHero", argumentsAIRx);
 
-  await verify(AirxHero.address, argumentsAIRx);
+  const tx = await AirxHero.waitForDeployment();
+  await verify(tx.address, argumentsAIRx);
 
-  const arguments = [5, AirxHero.address]; 
-  const BattleGame = await deploy("BattleGame", {
-      from: deployer,
-      args: arguments,
-      log: true,
-      waitConfirmations: 1,
-  });
 
-  await BattleGame.waitForDeployment();
+  const arguments = [5, tx.address]; 
+  const BattleGame = await deploy("BattleGame", arguments);
+  const tx2 = await BattleGame.waitForDeployment();
 
-  await verify(BattleGame.address, arguments);
+  await verify(tx2.target, arguments);
 }
 
 // We recommend this pattern to be able to use async/await everywhere
