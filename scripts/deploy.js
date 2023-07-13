@@ -9,7 +9,19 @@ const { verify } = require("../utils/verify");
 async function main() {
   const { deploy } = deployments;
   const { deployer } = await getNamedAccounts();
-  const arguments = []; 
+  const argumentsAIRx = []; 
+  const AirxHero = await deploy("AirxHero", {
+      from: deployer,
+      args: argumentsAIRx,
+      log: true,
+      waitConfirmations: 1,
+  });
+
+  await AirxHero.waitForDeployment();
+
+  await verify(AirxHero.address, argumentsAIRx);
+
+  const arguments = [5, AirxHero.address]; 
   const BattleGame = await deploy("BattleGame", {
       from: deployer,
       args: arguments,
@@ -17,7 +29,7 @@ async function main() {
       waitConfirmations: 1,
   });
 
-  await lock.waitForDeployment();
+  await BattleGame.waitForDeployment();
 
   await verify(BattleGame.address, arguments);
 }
